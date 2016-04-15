@@ -16,6 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+var events = [{slug: "How to pass class",
+                body: "Come to class"}];
 var app = {
     // Application Constructor
     initialize: function() {
@@ -33,18 +36,42 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        app.render('container');
+        $('#submit').on('click', app.addEntry);
+    },
+    addEntry: function(evt){
+      evt.preventDefault();
+
+      var slug = $('#slug').val();
+      var body = $('#body').val();
+
+      var entry = {slug: slug, body: body};
+
+      events.push(entry);
+
+      app.render("container");
     },
     // Update DOM on a Received Event
-    receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
+    render: function(id) {
+      var containerElement = document.getElementById(id);
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
+      var html = '';
 
-        console.log('Received Event: ' + id);
+      for(var i=0; i<events.length; i++)
+      {
+        html += '<div><h1>' + events[i].slug + '</h1>' +
+        '<p>'+events[i].body + '</p><button data-id="' + i + '" class="delete" type="button">Delete</button></div>';
+      }
+
+      containerElement.innerHTML = html;
+
+      $(".delete").on('click', function(evt){
+        console.log("Delete" + evt);
+        var entryID = $(this).attr('data-id');
+        $(this).data('id');
+        console.log( entryID );
+        entry.splice(entryID, 1);
+      });
     }
 };
 
