@@ -35,10 +35,11 @@
         <link rel="stylesheet" type="text/css" href="css/index.css">
         <title>Hello World</title>
         <script type='text/template' id='entries'>
-          <% for(var i=0; i< events.length; i++) { %>
+          <h1>Entries</h1>
+          <% for(var i=0; i< posts.length; i++) { %>
             <div>
-              <h1><%= events[i].slug %></h1>
-              <p><%= events[i].body %></p>
+              <h1><%= posts[i].slug %></h1>
+              <p><%= posts[i].body %></p>
               <button data-id="<%= i %>" class="delete" type="button">Delete</button>
             </div>
           <% } %>

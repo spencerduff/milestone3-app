@@ -17,8 +17,25 @@
  * under the License.
  */
 
-var events = [{slug: "How to pass class",
-                body: "Come to class"}];
+
+var util = {
+  store: function(namespace, data){
+    if( arguments.length > 1)
+    {
+      console.log('Save: ' + data);
+      return localStorage.setItem(namespace, JSON.stringify(data));
+    } else {
+      var store = localStorage.getItem(namespace);
+      if(store)
+      {
+        return JSON.parse(store);
+      } else {
+        return [];
+      }
+    }
+  }
+};
+
 var app = {
     // Application Constructor
     initialize: function() {
@@ -26,7 +43,7 @@ var app = {
     },
     // Bind Event Listeners
     //
-    // Bind any events that are required on startup. Common events are:
+    // Bind any ev ents that are required on startup. Common ev ents are:
     // 'load', 'deviceready', 'offline', and 'online'.
     bindEvents: function() {
         document.addEventListener('deviceready', this.onDeviceReady, false);
@@ -36,25 +53,29 @@ var app = {
     // The scope of 'this' is the event. In order to call the 'receivedEvent'
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
+        app.posts = util.store('posts');
         app.loadTemplates();
-        app.render('container');
+        app.render('container', 'entries', {posts: app.posts});
         app.registerCallbacks();
     },
     loadTemplates: function(){
-      var templateText = document.getElementById('entries');
+      var templates = ['entries', 'addEntryForm' ];
 
-      app.entriesTemplate = new EJS({text: templateText});
+      var templateText = '';
 
-      var addEntryFormTemplateText = document.getElementById('addEntryForm');
+      app.templates = {};
 
-      app.addEntryFormTemplate = new EJS({text: addEntryFormTemplateText});
+      for(var i=0; i<templates.length; i++)
+      {
+        var templateText = document.getElementById(templates[i]).text;
+
+        app.templates[templates[i]] = new EJS({text: templateText});
+      }
     },
     registerCallbacks: function(){
-      $('#entryForm').hide();
-      $('#addEntry').on('click', function(){
-        $('#entryForm').show();
-      });
-      $('#submit').on('click', app.addEntry);
+      $("#container").on('click', '#submit', app.addEntry)
+      // $('#submit').on('click', app.addEntry)
+
     },
     addEntry: function(evt){
       evt.preventDefault();
@@ -64,31 +85,20 @@ var app = {
 
       var entry = {slug: slug, body: body};
 
-      events.push(entry);
+      app.posts.push(entry);
+      util.store('posts', app.posts)
 
       app.render("container");
 
       $('#entryForm').hide();
     },
     // Update DOM on a Received Event
-    render: function(id) {
+    render: function(id, template, data) {
       var containerElement = document.getElementById(id);
 
-      var html = app.entriesTemplate.render({events: events});
+      var html = app.templates[template].render(data);
 
       containerElement.innerHTML = html;
-
-      var form = app.addEntryFormTemplate.render();
-
-      $('#container').append(form);
-
-      $(".delete").on('click', function(evt){
-        console.log("Delete" + evt);
-        var entryID = $(this).attr('data-id');
-        console.log( entryID );
-        events.splice(entryID, 1);
-        app.render('container');
-      });
     }
 };
 
