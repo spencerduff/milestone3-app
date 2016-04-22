@@ -38,7 +38,7 @@
           <h1>Entries</h1>
           <% for(var i=0; i< posts.length; i++) { %>
             <div>
-              <h1><%= posts[i].slug %></h1>
+              <h1><a href='/entries/<%= i %>'><%= posts[i].slug %></a></h1>
               <p><%= posts[i].body %></p>
               <button data-id="<%= i %>" class="delete" type="button">Delete</button>
             </div>
@@ -52,12 +52,16 @@
             <button id='submit'>Create</button>
           </form>
         </script>
+        <script type='text/template' id='entry'>
+          <h1><%= post.slug %></h1>
+          <p><%= post.body %></p>
+        </script>
     </head>
     <body>
         <nav>
           <ul>
-            <li id='addEntry'>Add entry</li>
-            <li>Entries</li>
+            <li><a href='/add'>Add entry</a></li>
+            <li><a href='/entries'>Entries</a></li>
           </ul>
         </nav>
         <div id="container">

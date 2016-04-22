@@ -22,7 +22,6 @@ var util = {
   store: function(namespace, data){
     if( arguments.length > 1)
     {
-      console.log('Save: ' + data);
       return localStorage.setItem(namespace, JSON.stringify(data));
     } else {
       var store = localStorage.getItem(namespace);
@@ -59,7 +58,7 @@ var app = {
         app.registerCallbacks();
     },
     loadTemplates: function(){
-      var templates = ['entries', 'addEntryForm' ];
+      var templates = ['entries', 'addEntryForm', 'entry' ];
 
       var templateText = '';
 
@@ -73,9 +72,29 @@ var app = {
       }
     },
     registerCallbacks: function(){
-      $("#container").on('click', '#submit', app.addEntry)
-      // $('#submit').on('click', app.addEntry)
-
+      $('body').on('click', 'a', function(evt){
+        evt.preventDefault();
+        history.pushState({}, '', $(this).attr('href'));
+        //render stuff
+        app.route(location.pathname);
+      })
+      $("#container").on('click', '#submit', app.addEntry);
+      $('#container').on('click', '.delete', app.deleteEntry);
+    },
+    route: function(path){
+      console.log('route'+path);
+      if(path === '/add'){
+        console.log('inside');
+        app.render('container', 'addEntryForm', {});
+        return
+      }
+      if(/\/entries\/(\d*)/.test(path) )
+      {
+        var id = parseInt(  path.match(/\/entries\/(\d*)/)[1]  );
+        app.render('container', 'entry', {post: app.posts[id]});
+        return
+      }
+      app.render('container', 'entries', {posts: app.posts});
     },
     addEntry: function(evt){
       evt.preventDefault();
@@ -88,9 +107,14 @@ var app = {
       app.posts.push(entry);
       util.store('posts', app.posts)
 
-      app.render("container");
+      app.render("container", "entries", {posts: app.posts});
+    },
+    deleteEntry: function(){
+      var entryID = $(this).attr('data-id');
+      app.posts.splice(entryID, 1);
+      util.store('posts', app.posts);
 
-      $('#entryForm').hide();
+      app.render("container", "entries", {posts: app.posts});
     },
     // Update DOM on a Received Event
     render: function(id, template, data) {
